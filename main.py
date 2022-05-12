@@ -34,13 +34,13 @@ daisie_main = DaisieMain(__name__,
             # }
         ]
     )
-config = config_reader().get_config()
-client_id = config['oauth'].get('client_id')        
-daisie_main.client = WebApplicationClient(client_id)
-client_id2 = config['oauth2'].get('client_id')
-daisie_main.client2 = WebApplicationClient(client_id2)
-client_id3 = config['oauth3'].get('client_id')
-daisie_main.client3 = WebApplicationClient(client_id3)
+#config = config_reader().get_config()
+#client_id = config['oauth'].get('client_id')        
+#daisie_main.client = WebApplicationClient(client_id)
+#client_id2 = config['oauth2'].get('client_id')
+#daisie_main.client2 = WebApplicationClient(client_id2)
+#client_id3 = config['oauth3'].get('client_id')
+#daisie_main.client3 = WebApplicationClient(client_id3)
 
 img = '/assets/core/static/assets/img/FIDA1.jpg'
 
@@ -60,17 +60,17 @@ daisie_main.create_navigator(
 
 
 #creates all app instances
-from apps import create_appsInstances 
-create_appsInstances(daisie_main)
+#from apps import create_appsInstances 
+#create_appsInstances(daisie_main)
 
 # Flask routes for login with google oauth
-from daisie.routes.oauth import oauth_routes
-oauth_routes(daisie_main)
+#from daisie.routes.oauth import oauth_routes
+#oauth_routes(daisie_main)
 
-from apps.routes.oauth_github import oauth_routes
-oauth_routes(daisie_main)
-from apps.routes.oauth_linked import oauth_routes
-oauth_routes(daisie_main)
+#from apps.routes.oauth_github import oauth_routes
+#oauth_routes(daisie_main)
+#from apps.routes.oauth_linked import oauth_routes
+#oauth_routes(daisie_main)
 
 #print(daisie_main._apps.keys())
 
