@@ -21,13 +21,14 @@ class SingleHeader(LayoutFundamental):
                     children=[
                         dbc.Row(
                             children=[
-                                html.H4('Daisie Beispielapp', style={"margin-left": "1rem", "margin-top": "1rem"})
-                                ], 
-                            className='header-title'
-                        ),
-                     dbc.Row(
-                                children=[               
-                                    dbc.Col(
+                                dbc.Col([
+                                    html.H2('Daisie Beispielapp', className="text-primary"
+                                    )
+                                    ], 
+                                    className='header-title',
+                                    width=4
+                                ),
+                                dbc.Col(
                                         className='header-right',
                                         children=[
                                             html.Div(
@@ -42,11 +43,16 @@ class SingleHeader(LayoutFundamental):
                                             ],
                                         width=3,
                                         style={"textAlign": "right"}
-                                        ),
-                                    ],
-                                justify="end",
-                                #className='header_logo_row'
-                                )
+                                        )
+                                ], 
+                        justify="between"
+                        ),
+                    #  dbc.Row(
+                    #             children=[               
+                    #                 ,
+                    #                 ],
+                    #             justify="end",
+                    #             )
                     ],
                     className = 'header'
                     ) 

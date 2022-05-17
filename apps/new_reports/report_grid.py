@@ -7,37 +7,59 @@ from .common_components import get_cards
 from .common_components import get_table_with_heading
 import pandas as pd
 import plotly_express as px
-from daisie.core.export_import import OfficeDownloader
 from daisie.core.database.db import db_alchemy
-import requests
+
 import numpy as np
-from daisie.core.misc import config_reader
-from flask import request
+
 from ..helper.downloads import HelperDownload
-import locale
+
+from daisie.core.authentification.routes.oauth_google import create_request_url as google_cru
+from daisie.core.authentification.routes.oauth_github import create_request_url as github_cru
+from daisie.core.authentification.routes.oauth_linked import create_request_url as linkedin_cru
+
 class ReportGrid(DaisieApp):
-    def __init__(self, id, title, is_fixed=False, **kwargs):
+    def __init__(self, id, title, login=True, **kwargs):
         self.eu_countries = "Belgien, Bulgarien, Dänemark, Deutschland, Estland, Finnland, Frankreich, Griechenland, Irland, Italien, Kroatien, Lettland, Litauen, Luxemburg, Malta, Niederlande, Österreich, Polen, Portugal, Rumänien, Schweden, Slowakei, Slowenien, Spanien, Tschechische Republik, Ungarn, Zypern".split(", ")
         self.daisie_main = kwargs.get('daisie_main')
-        self.db_engine = db_alchemy('database').get_engine()
-        self.df = pd.read_sql_table('v_mart_artikelverkauf', con=self.db_engine, schema='dwh')
+        self.db_engine = db_alchemy('database1').get_engine()
+        try: 
+            self.df = pd.read_sql_table('v_mart_artikelverkauf', con=self.db_engine, schema='dwh')
+        except Exception as e:
+            print('No Database available \n CSV file will be used \n' + str(e))
+            import os
+            filepath = os.getcwd() + "/apps/new_reports/data/v_mart_artikelverkauf.csv"
+            self.df = pd.read_csv(filepath)
+            self.df=self.df.rename(columns={
+                "Menge": 'Anzahl', 
+                "Preis": "Umsatz in EUR", 
+                "Artikelbeschreibung": "Name", 
+                "Land": "Land", 
+            })
+            self.df['datum']= pd.to_datetime(self.df["datum"])
+            
         self.df=self.df.rename(columns={
-            "fakt_anzahl_artikel": 'Anzahl', 
-            "fakt_preis_artikel": "Umsatz in EUR", 
-            "artikelbeschreibung": "Name", 
-            "name_land": "Land", 
-            "datum": "Datum"
-        })
+                "fakt_anzahl_artikel": 'Anzahl', 
+                "fakt_preis_artikel": "Umsatz in EUR", 
+                "artikelbeschreibung": "Name", 
+                "name_land": "Land", 
+                "datum": "Datum"
+            })
+
         self.df = self.df[["Name", "Land", "Datum", "Anzahl", "Umsatz in EUR"]]
         self.countries = list(set(self.df['Land'].values.tolist()))
-        super().__init__(id=id, title=title, is_fixed=is_fixed, **kwargs)
+        self.login = login
+        super().__init__(id=id, title=title, **kwargs)
         
 
     def set_content(self):
-        if current_user is not None:
-            if current_user.is_authenticated or not self.security:
-                return self.report_content()
-        return self.login_content()
+        if self.login:
+            if current_user is not None:
+                if current_user.is_authenticated:
+                    return self.report_content()
+            
+            return self.login_content()
+        else:
+            return self.report_content()
         
         
 
@@ -70,6 +92,7 @@ class ReportGrid(DaisieApp):
                                             ],id={'type':self.id +'Umsatz','index': '1'}, className="mb-0")
                                         ],
                                         header="Umsatz in EUR",
+                                        style={"marginBottom": ".75rem"}
                                     ),
                                     # html.Br(),
                                     dbc.Toast(
@@ -82,6 +105,7 @@ class ReportGrid(DaisieApp):
                                             )
                                         ],
                                         header="Durschnittlicher Umsatz in EUR",
+                                        style={"marginBottom": ".75rem"}
                                     ),
                                     # html.Br(),
                                     dbc.Toast(
@@ -98,7 +122,8 @@ class ReportGrid(DaisieApp):
                             )
                         ],
                         justify="center"
-                    )
+                    ),
+                    html.Br()
                 ]
             )
 
@@ -136,6 +161,7 @@ class ReportGrid(DaisieApp):
                                                     ],
                                                     value=["plot", "table", "kpi"],
                                                     id={'type':self.id + "download_select", 'index': '1'},
+                                                    className="custom-checkbox"
                                                 ),
                                                 width=2
                                             )
@@ -155,8 +181,10 @@ class ReportGrid(DaisieApp):
                                             )],
                                             width=3
                                         ),
-                                    ], justify="center")
-                                ],
+                                    ], justify="center"
+                                    ),
+                                    html.Br()
+                                ]
                 #             width=6
                 #             )
                 #         ],
@@ -173,29 +201,30 @@ class ReportGrid(DaisieApp):
                         dbc.Row(
                             [
                                 dbc.Col(dcc.Dropdown(["EU", "Non-EU"], ["EU", "Non-EU"], multi=True, id={'type':self.id + "eu_dropdown", 'index': '1'}, placeholder="Wählen Sie EU, Non-EU oder beides.")),
-                                dbc.Col(html.Div(
-                                    children=Helper.help_button(
+                                dbc.Col(Helper.help_button(
                                         id=self.id+"help",
                                         popover_header='EU oder Non-EU',
                                         popover_body="Bitte wählen Sie EU, Non-EU oder beides aus.",
                                         title="Information EU Dropdown"
-                                        )
-                                    ))
+                                        ),
+                                        align="center"
+                                    )
                             ]),
                         html.Br(),
                         dbc.Row(
                             [
                                 dbc.Col(dcc.Dropdown(self.countries, self.countries[0], multi=True, id={'type':self.id + "countries_dropdown", 'index': '1'}, placeholder="Wählen Sie ein Land aus.")),
-                                dbc.Col(html.Div(
-                                    children=Helper.help_button(
+                                dbc.Col(Helper.help_button(
                                         id=self.id+"help+spec",
                                         popover_header='Länder',
                                         popover_body="Bitte wählen Sie die gewünschten Länder aus.",
                                         title="Information Länder Dropdown"
-                                        )
-                                    ))
+                                        ),
+                                        align="center"
+                                    )
                             ]),
-
+                        html.Br(),
+                        dbc.Spinner(html.Div(id={'type': self.id+"loading-output",'index': '1'}), color="secondary"),
                         dbc.Tabs(
                             [
                                 dbc.Tab(self.plot_content(), label='Grafik', id=self.id+"tab-plot"),
@@ -209,89 +238,73 @@ class ReportGrid(DaisieApp):
                 )
 
     def login_content(self):
+        request_uri_google = google_cru(self.daisie_main)
+        request_uri_github = github_cru(self.daisie_main)
+        request_uri_linkedin = linkedin_cru(self.daisie_main)
 
-        config = config_reader().get_config()
-        
-
-        config = config_reader().get_config()
-        open_id = config['oauth'].get('openid_configuration')
-        provider_cfg=requests.get(open_id).json()
-        authorization_endpoint = provider_cfg["authorization_endpoint"]
-        request_uri_google = self.daisie_main.client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=config['url'].get('base_url') + config['oauth'].get('callback_url'),
-        scope=["openid", "email", "profile"],
-        )
-        
-        
-        authorization_endpoint = "https://www.linkedin.com/oauth/v2/authorization"
-        request_uri_linkedin = self.daisie_main.client3.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=config['url'].get('base_url') + config['oauth3'].get('callback_url'),
-        scope="r_liteprofile")
-        
-        
-        
-        authorization_endpoint = "https://github.com/login/oauth/authorize"
-        request_uri_github = self.daisie_main.client2.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=config['url'].get('base_url') + config['oauth2'].get('callback_url'),
-        login=config['oauth2'].get('login'))
         return html.Div(
             children=[
-                html.H1('Herzlich Willkommen zu Daisie Fida'),
+                html.Br(),
+                html.H3('Herzlich Willkommen zu Daisie.', className="text-primary"),
                 html.P("Bitte loggen Sie sich über Ihren Google, LinkedIn oder Github Accoun ein!"),
                 html.Br(),
                 dbc.Row([
                     dbc.Col([
-                        dbc.Toast([
+                        dbc.Toast(header="Login mit OAuth", children=[
                             dbc.Row([
                                 dbc.Col(
                                     dbc.Button(
                                             children=[
-                                                html.Img(src="assets/img/googleicon.png", className='icon_size'),
-                                                "Google Sign-In",
+                                                html.I(className="fa-brands fa-google"),
+                                                html.Span("Google Login", style={"marginLeft": "1ex"})
                                                 ],                
                                             title="Bitte loggen Sie sich über Ihren Google Account ein",
                                             href=request_uri_google,
-                                            color="dark",
+                                            color="primary",
                                             outline=True,
-                                            style={"width": "180px"}
+                                            style={"width": "180px", "marginBottom": ".5rem"}
                                     ),        
-                                    width=8    
+                                    width=10,
+                                    style={"textAlign": "center"}
                                 ),        
-                            ], justify="center"), dbc.Row([ 
+                            ], justify="center"), 
+                            # html.Br(),
+                            dbc.Row([ 
                                 dbc.Col(
                                     dbc.Button(
                                             children=[
-                                                html.Img(src='assets/img/linkedinicon.png', className='icon_size'),
-                                                "LinkedIn Sign-In",
+                                                html.I(className="fa-brands fa-linkedin"),
+                                                html.Span("LinkedIn Login", style={"marginLeft": "1ex"}),
                                                 ],                
                                             title="Bitte loggen Sie sich über Ihren LinkedIn Account ein",
-                                            color="dark",
+                                            color="primary",
                                             outline=True,
                                             href=request_uri_linkedin,
-                                            style={"width": "180px"}
+                                            style={"width": "180px", "marginBottom": ".5rem"}
                                             ),
-                                    width=8
+                                    width=10,
+                                    style={"textAlign": "center"}
                                 ),
-                            ], justify="center"), dbc.Row([
+                            ], justify="center"), 
+                            # html.Br(),
+                            dbc.Row([
                                 dbc.Col(
                                     dbc.Button(
                                             children=[
-                                                html.Img(src='assets/img/githubicon.png', className='icon_size'),
-                                                "Github Sign-In",
+                                                html.I(className="fa-brands fa-github"),
+                                                html.Span("Github Login", style={"marginLeft": "1ex"})
                                                 ],                
                                             title="Bitte loggen Sie sich über Ihren Github Account ein",
-                                            color="dark",
+                                            color="primary",
                                             outline=True,
                                             href=request_uri_github,
                                             style={"width": "180px"}
                                     ),
-                                    width=8
+                                    width=10,
+                                    style={"textAlign": "center"}
                                 )
                             ], justify="center")
-                        ], header="Sign-In mit OAuth"),
+                        ]),
                     ], width=4)
                 ], justify="center")
             ])
@@ -324,15 +337,15 @@ class ReportGrid(DaisieApp):
                 countries_vals = []
 
             if len(eu_dropdown_vals) == 2:
-                return [[{"label": c, "value": c} for c in self.countries], countries_vals]
+                return [[{"label": c, "value": c} for c in sorted(self.countries)], countries_vals]
             elif eu_dropdown_vals == ["EU"]:
                 return [
-                    [{"label": c, "value": c, "disabled": (c not in self.eu_countries)} for c in self.countries], 
+                    [{"label": c, "value": c, "disabled": (c not in self.eu_countries)} for c in sorted(self.countries)], 
                     [c for c in countries_vals if c in self.eu_countries]
                 ]
             elif eu_dropdown_vals == ["Non-EU"]:
                 return [
-                    [{"label": c, "value": c, "disabled": (c in self.eu_countries)} for c in self.countries], 
+                    [{"label": c, "value": c, "disabled": (c in self.eu_countries)} for c in sorted(self.countries)], 
                     [c for c in countries_vals if c not in self.eu_countries]
                 ]
             else:
@@ -346,7 +359,8 @@ class ReportGrid(DaisieApp):
                 Output({'type':self.id +'Umsatz','index': MATCH}, 'children'),
                 Output({'type':self.id +'durch_Umsatz','index': MATCH}, 'children'),
                 Output({'type':self.id +'zahl','index': MATCH}, 'children'),
-                Output({'type':self.id + "excel-download",'index': MATCH}, 'href')
+                Output({'type':self.id + "excel-download",'index': MATCH}, 'href'),
+                Output({'type': self.id+"loading-output",'index': MATCH}, "children")
             ],[
                 Input({'type':self.id + "countries_dropdown", 'index': MATCH}, 'value'),
                 Input({'type':self.id + "download_select", 'index': MATCH}, 'value'),
@@ -387,21 +401,31 @@ class ReportGrid(DaisieApp):
                 download = None
 
             return [ 
-                [dash_table.DataTable(
-                    table_df.to_dict('records'), 
-                    [{"name": i, "id": i} for i in df.columns], 
-                    style_as_list_view=False, 
-                    style_cell={"fontFamily": "sans-serif", "fontSize": "13px", 'padding': '5px'}, 
-                    style_header={"fontWeight": "bold", "textAlign": "center"},
-                    style_cell_conditional=[
-                        {
-                            'if': {'column_id': c},
-                            'textAlign': 'left'
-                        } for c in ['Datum', 'Land', "Name"]
-                    ],
-                    sort_action='native',
-                    sort_mode='single'
-                )],
+                [
+                    dash_table.DataTable(
+                        table_df.to_dict('records'), 
+                        [{"name": i, "id": i} for i in df.columns], 
+                        style_as_list_view=False, 
+                        style_cell={"fontFamily": "sans-serif", "fontSize": "13px", 'padding': '5px'}, 
+                        style_header={"fontWeight": "bold", "textAlign": "center", "color": "var(--bs-primary)"},
+                        style_cell_conditional=[
+                            {
+                                'if': {'column_id': c},
+                                'textAlign': 'left'
+                            } for c in ['Datum', 'Land', "Name"]
+                        ],
+                        style_data_conditional=[                
+                            {
+                                "if": {"state": "selected"}, # 'active' | 'selected'
+                                "backgroundColor": "rgba(var(--bs-secondary-rgb), 0.2)",
+                                "border": "1px solid var(--bs-secondary)",
+                            },
+                        ],
+                        sort_action='native',
+                        sort_mode='single'
+                    )
+                    # dbc.Table.from_dataframe(table_df, striped=True, bordered=True, hover=True)
+                ],
 
                 fig, 
                 
@@ -409,7 +433,9 @@ class ReportGrid(DaisieApp):
                 durch_Umsatz,
                 anzahl,
 
-                download
+                download,
+
+                ""
             ]
             
             

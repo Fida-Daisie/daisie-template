@@ -1,0 +1,185 @@
+/* general */
+:root{
+    --default-page-width: 1000px;
+    --default-footer-height: 2.5rem;
+
+    --font-main: Poppins, sans-serif;
+
+    --background-color-footer-rgb: 220,220,220;
+    --background-color-basic-rgb: 240, 240, 240;
+    --background-color-content-rgb: 253, 253, 252;
+}
+
+html, body {
+    font-family: var(--font-main) !important;
+}
+
+.main-container {
+    width : var(--default-page-width);
+    margin : auto;
+
+    background-color: rgb(var(--background-color-content-rgb));
+    max-width: var(--default-page-max-width);
+    min-height: 100vh;
+}
+
+.base-background {
+    background-color: rgb(var(--background-color-basic-rgb));
+    min-height: 100vh;
+}
+
+.body-container {
+    background-color: rgb(var(--background-color-content-rgb));
+    max-width: var(--default-page-max-width);
+    padding-bottom: var(--default-footer-height) !important;
+}
+
+.content-container {
+    min-height: 100%;
+    background-color: rgb(var(--background-color-content-rgb));
+    padding: 0 !important;
+}
+
+
+
+/* bootstrap layout */
+.col, .col-1, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-10, .col-11, .col-12 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+div.row {
+    margin-left: 0;
+    margin-right: 0;
+    /* margin-bottom: .5rem; */
+}
+
+
+/* header */
+.header {
+    padding-top: 1rem;
+    height: 4rem;
+}
+
+.logo-img{
+    height: 3rem;
+}
+
+
+/* footer */
+.footer{
+    height: auto;
+    z-index: 2;
+}
+.footer-floating{
+    position: fixed;
+    bottom: 0;
+
+    width: var(--default-page-width);
+    height: var(--default-footer-height); /* Set the fixed height of the footer here */
+    line-height: var(--default-footer-height); /* Vertically center the text there */
+    background-color: rgb(var(--background-color-footer-rgb));
+}
+.footer-link {
+    text-decoration: none;
+}
+.footer-link:hover {
+    text-decoration: none;
+    color: var(--bs-secondary);
+}
+.footer-link-margin-left {
+    margin-left: 1rem;
+    margin-right: auto;
+}
+
+
+/* navbar */
+.NavBar {
+    color : white;
+    margin-left: 1rem;
+}
+
+.NavBottom {
+    border-bottom: 1px solid rgba(var(--bs-primary-rgb), 0.25); 
+}
+
+
+/* help buttons */
+.btn-help {
+    height: 1.5rem !important;
+    width: 1.5rem !important;
+    display: block !important;
+    border-radius: 50% !important;
+
+    color: white !important;
+    padding: 0 !important;
+}
+
+
+/* dcc multi dropdown (for simple dropdown use dbc) */
+.VirtualizedSelectFocusedOption {
+    background-color: rgba(var(--bs-primary-rgb), 0.3);
+}
+.Select.is-focused > .Select-control{
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.3) !important;
+}
+.Select--multi .Select-value {
+    border-color: rgba(var(--bs-primary-rgb), 0.4) !important;
+    color: var(--bs-primary) !important;
+    background-color: rgba(var(--bs-primary-rgb), 0.25) !important;
+}
+.Select--multi .Select-value:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.5) !important;
+}
+.Select--multi .Select-value-icon{
+    color: var(--bs-primary) !important;
+    border-color: rgba(var(--bs-primary-rgb), 0.4) !important;
+}
+.Select--multi .Select-value-icon:hover, .Select-value-icon:focus, .Select-value-icon:active{
+    background-color: rgba(var(--bs-primary-rgb), 0.5) !important;
+}
+
+/* TODO: other dcc components, e.g. datepicker, slider, ... */
+
+/* Dash data table */
+.dash-spreadsheet-container .dash-spreadsheet-inner table {
+    --accent: var(--bs-secondary) !important;
+}
+
+/* FIDA "L" snippets */
+div.topleftsnippet {
+    box-shadow: 3px 3px 0 3px var(--bs-primary),
+                3px 10px 0 3px var(--bs-primary),
+                3px 20px 0 3px var(--bs-primary), 
+                3px 30px 0 3px var(--bs-primary),
+                3px 35px 0 3px var(--bs-primary),
+                10px 3px 0 3px var(--bs-primary),
+                17px 3px 0 3px var(--bs-primary);
+    border-top-left-radius: 5px;
+    background-color: var(--bs-primary);
+    width: 10px;
+    height: 10px;
+    overflow: hidden;
+    position: relative;
+    left: -10px;
+    z-index: 1;
+}
+
+div.bottomrightsnippet{
+    box-shadow: 3px 3px 0 3px var(--bs-secondary),
+                3px 10px 0 3px var(--bs-secondary),
+                3px 20px 0 3px var(--bs-secondary), 
+                3px 30px 0 3px var(--bs-secondary),
+                3px 35px 0 3px var(--bs-secondary),
+                10px 3px 0 3px var(--bs-secondary),
+                17px 3px 0 3px var(--bs-secondary);
+    border-top-left-radius: 5px;
+    background-color: var(--bs-secondary);
+    width: 10px;
+    height: 10px;
+    overflow: hidden;
+    position: relative;
+    left: 100%; 
+    z-index: 1;
+    transform: rotate(180deg);
+}
