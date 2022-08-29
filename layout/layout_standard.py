@@ -7,10 +7,10 @@ from .nav import NavBarTop
 
 class SimpleLayout(DaisieLayout):
     def __init__(self, id=None, title=None, **kwargs):
-            header = SingleHeader(id=id, title=title)
+            header = SingleHeader(id=id)
             footer = StandardFooterFloating(id=id)
             nav = NavBarTop(id=id)
-            super().__init__(id, title=title, header = header, footer=footer, NavTop=nav)
+            super().__init__(id, header = header, footer=footer, NavTop=nav)
 
 
     

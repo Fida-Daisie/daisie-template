@@ -19,7 +19,6 @@ html, body {
     margin : auto;
 
     background-color: rgb(var(--background-color-content-rgb));
-    max-width: var(--default-page-max-width);
     min-height: 100vh;
 }
 
@@ -28,18 +27,44 @@ html, body {
     min-height: 100vh;
 }
 
+/* needed for footer */
 .body-container {
-    background-color: rgb(var(--background-color-content-rgb));
-    max-width: var(--default-page-max-width);
     padding-bottom: var(--default-footer-height) !important;
 }
 
-.content-container {
-    min-height: 100%;
-    background-color: rgb(var(--background-color-content-rgb));
-    padding: 0 !important;
-}
 
+/* Black screen for changing orientation */
+.black-screen {
+    display: none;    
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 999;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    cursor: pointer;
+}
+.black-screen > div {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: x-large;
+}
+@media (orientation: portrait) {
+    .black-screen {
+        display: block;
+    }
+}
+@media (orientation: landscape) {
+    .black-screen {
+        display: none;
+    }
+}
 
 
 /* bootstrap layout */
@@ -53,6 +78,12 @@ div.row {
     /* margin-bottom: .5rem; */
 }
 
+
+/* dbc carousel */
+.carousel-caption{
+    background-color: rgba(var(--bs-primary-rgb), 0.6);
+    color: white !important;
+}
 
 /* header */
 .header {
@@ -93,15 +124,14 @@ div.row {
 
 
 /* navbar */
-.NavBar {
-    color : white;
-    margin-left: 1rem;
-}
-
 .NavBottom {
-    border-bottom: 1px solid rgba(var(--bs-primary-rgb), 0.25); 
-}
+    border-bottom: 1px solid rgba(var(--bs-primary-rgb), 0.25);
 
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: white;
+}
 
 /* help buttons */
 .btn-help {
@@ -116,6 +146,9 @@ div.row {
 
 
 /* dcc multi dropdown (for simple dropdown use dbc) */
+.Select, .dash-dropdown{
+    cursor: pointer;
+}
 .VirtualizedSelectFocusedOption {
     background-color: rgba(var(--bs-primary-rgb), 0.3);
 }
@@ -139,7 +172,33 @@ div.row {
     background-color: rgba(var(--bs-primary-rgb), 0.5) !important;
 }
 
-/* TODO: other dcc components, e.g. datepicker, slider, ... */
+/* Slider */
+.rc-slider-track {
+    background-color: rgba(var(--bs-primary-rgb), 0.5);
+}
+  
+.rc-slider-dot-active {  
+    border-color: rgba(var(--bs-primary-rgb), 0.5);
+}
+  
+.rc-slider-handle {
+    border-color: rgba(var(--bs-primary-rgb), 0.5);
+}
+  
+.rc-slider-handle:hover, .rc-slider-handle:focus {
+    border-color: rgba(var(--bs-primary-rgb), 0.5);
+}
+  
+.rc-slider-handle:active, .rc-slider-handle-active:active {
+    border-color: rgba(var(--bs-primary-rgb), 0.5);
+    box-shadow: 0 0 5px rgba(var(--bs-primary-rgb), 0.3);
+}
+
+.rc-slider-handle-dragging{
+    border-color: rgba(var(--bs-primary-rgb), 0.7) !important;
+    box-shadow: 0 0 0 5px rgba(var(--bs-primary-rgb), 0.5) !important;
+}
+
 
 /* Dash data table */
 .dash-spreadsheet-container .dash-spreadsheet-inner table {
