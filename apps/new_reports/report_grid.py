@@ -2,13 +2,13 @@ from dash import html, dcc, Input, Output, State, MATCH, dash_table
 import dash_bootstrap_components as dbc
 from daisie.apps import DaisieApp
 from daisie.core.presentation.components.Helpbutton import Helper 
+from daisie.core.misc import read_config_for_oauth
 from flask_login import current_user
 import pandas as pd
 import plotly.express as px
 from daisie.core.database.db import db_alchemy
 
 from ..helper.downloads import HelperDownload
-from ..helper.misc import read_config_for_oauth
 
 class ReportGrid(DaisieApp):
     def __init__(self, id, title, login=True, **kwargs):

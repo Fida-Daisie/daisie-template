@@ -4,18 +4,16 @@ from apps import create_appsInstances
 import locale
 locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
 
-oauth = True
-
 # initialize main app
 daisie_main = DaisieMain(__name__, 
         title='Daisie Example App',
         update_title=None,
         assets_folder="assets",
-        oauth=oauth
+        oauth=True
     )
 
 # creates all app instances
-create_appsInstances(daisie_main, login=oauth)
+create_appsInstances(daisie_main)
 
 # Update the Navigator Layout to make sure, all navigation cards are generated/all apps are registered
 daisie_main.update_navigator()

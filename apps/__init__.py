@@ -1,9 +1,9 @@
 from layout.layout_standard import SimpleLayout
 from .new_reports.report_grid import ReportGrid
 
-from .helper.misc import read_config_for_oauth
+def create_appsInstances(daisie_main):
+    login = daisie_main.oauth
 
-def create_appsInstances(daisie_main, login:bool=False):
     img = "/assets/img/FIDA1.jpg"
     daisie_main.create_navigator( 
         title="Home",
@@ -15,9 +15,6 @@ def create_appsInstances(daisie_main, login:bool=False):
         description='Navigator',
         layout=SimpleLayout
     )
-
-    if all(~read_config_for_oauth()):
-        login = False
 
     ReportGrid(
         title="Business Report",
