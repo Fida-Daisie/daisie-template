@@ -57,12 +57,12 @@ html, body {
 }
 @media (orientation: portrait) {
     .black-screen {
-        display: block;
+        display: block !important;
     }
 }
 @media (orientation: landscape) {
     .black-screen {
-        display: none;
+        display: none !important;
     }
 }
 
